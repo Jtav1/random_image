@@ -62,32 +62,10 @@ a:active {
   color: orange;
 }
 
-.btn {
-  background: #68EC33;
-  background-image: -webkit-linear-gradient(top, #68EC33, #37a807);
-  background-image: -moz-linear-gradient(top, #68EC33, #37a807);
-  background-image: -ms-linear-gradient(top, #68EC33, #37a807);
-  background-image: -o-linear-gradient(top, #68EC33, #37a807);
-  background-image: linear-gradient(to bottom, #68EC33, #37a807);
-  -webkit-border-radius: 3;
-  -moz-border-radius: 3;
-  border-radius: 3px;
-  font-family: Arial;
-  color: #000000;
-  font-size: 20px;
-  padding: 10px 20px 10px 20px;
-  text-decoration: none;
-}
-
-.btn:hover {
-  background: #56bd2a;
-  text-decoration: none;
-}
-
 #content{
   text-align: center; 
   padding-top: 20px; 
-  padding-bottom: 110px;"
+  padding-bottom: 110px;
 }
 
 #wrapper {
@@ -134,45 +112,85 @@ $img_id = 0;
 $img_filename = '0000.jpg';
 $freshHit = false;
 
-//GET RANDOM IMAGE ID IF ONE IS NOT GIVEN
-$sql = "SELECT max(" . $CONFIG['id_field'] . ") total from " . $CONFIG['table_name'];
+//Get the max value of img_id so we know if someone is requesting an image with a higher ID than the highest ID in the system
+$sql = "SELECT max(img_id) total from " . $CONFIG['table_name'];
+if(!$count_result = $mysqli->query($sql)){ die('Query 1 error [' . $mysqli->error . ']'); }
+$count_row = $count_result->fetch_assoc();
 
-if(!$result = $mysqli->query($sql)){
-	die('Query error [' . $mysqli->error . ']');
+
+$incoming_id = "";
+if(!is_numeric($_GET["id"])) {
+  $incoming_id = "";
+} else {
+  $incoming_id = intval($_GET["id"]);
 }
 
-$row = $result->fetch_assoc();
+if(empty($incoming_id)){
+  $sql = "SELECT * FROM " . $CONFIG['table_name'] . " where reports < 5 ORDER BY RAND( ) LIMIT 1";
+  if(!$result = $mysqli->query($sql)){ die('Query 2 error [' . $mysqli->error . ']'); }
+  $row = $result->fetch_assoc();
 
-if(empty($_GET["id"])){
-	$img_id = rand(1,intval($row['total']));
+	$img_id = $row['IMG_ID'];
+  $img_filename = $row['FILENAME'];
+  $img_location = $CONFIG['img_directory'] . $img_filename;
+
 	$freshHit = true;
+
 } else {
-	if(intval($_GET["id"]) > intval($row['total'])){
-		$img_id = intval($row['total']);
+
+  //If an ID that is too high is given, get the image with the highest available ID
+	if($incoming_id > intval($count_row['total'])){
+    $sql = "SELECT * from " . $CONFIG['table_name'] . " where img_id = (select max(img_id) from " . $CONFIG['table_name'] . " where reports < 5)";
+
+    if(!$result = $mysqli->query($sql)){ die('Query 3 error [' . $mysqli->error . ']'); }
+    $row = $count_result->fetch_assoc();
+
+    $img_id = $row['IMG_ID'];
+    $img_filename = $row['FILENAME'];
+    $img_location = $CONFIG['img_directory'] . $img_filename;
+
+    $freshHit = false;
+
 	} else {
-		$img_id = $_GET["id"];
+
+    //If an int ID is given, make sure it is a valid record
+    $sql = "SELECT * from " . $CONFIG['table_name'] . " where img_id = " . $incoming_id;
+
+    if(!$result = $mysqli->query($sql)){ die('Query 4 error [' . $mysqli->error . ']'); }
+    $row = $result->fetch_assoc();
+
+    //If this image has been reported too many times, get a random image again
+    if(intval($row['REPORTS']) > 5){
+      $sql = "SELECT * FROM " . $CONFIG['table_name'] . " where reports < 5 ORDER BY RAND( ) LIMIT 1";
+      if(!$result = $mysqli->query($sql)){ die('Query 2 error [' . $mysqli->error . ']'); }
+      $row = $result->fetch_assoc();
+
+      $img_id = $row['IMG_ID'];
+      $img_filename = $row['FILENAME'];
+      $img_location = $CONFIG['img_directory'] . $img_filename;
+
+      $freshHit = true;
+
+
+    } else {
+
+      //Otherwise, display the image
+      $img_id = $row['IMG_ID'];
+      $img_filename = $row['FILENAME'];
+      $img_location = $CONFIG['img_directory'] . $img_filename;
+
+      $freshHit = false;
+    } 
+
 	}
 }
 
-//GET FILENAME FOR THE IMAGE ID - THIS WILL NORMALLY BE THE IMG_ID PADDED TO 4 DIGITS WITH LEADING 0s. FILE EXTENSION COULD BE WHATEVER.
-$sql = "SELECT filename from " . $CONFIG['table_name'] . " where " . $CONFIG['id_field'] . " = " . $img_id;
-
-if(!$result = $mysqli->query($sql)){
-	die('Query error [' . $mysqli->error . ']');
-}
-
-$row = $result->fetch_assoc();
-$img_filename = $row['filename'];
-$img_location = $CONFIG['img_directory'] . $img_filename;
-
-
 $hitCount = 0;
 
-
-$sql = "SELECT hits from " . $CONFIG['table_name'] . " where " . $CONFIG['id_field'] . " = " . $img_id;
+$sql = "SELECT hits from " . $CONFIG['table_name'] . " where img_id = " . $img_id;
 
 if(!$result = $mysqli->query($sql)){
-	die('Query error [' . $mysqli->error . ']');
+	die('Query 6 error [' . $mysqli->error . ']' . $sql);
 }
 
 $row = $result->fetch_assoc();
@@ -193,10 +211,10 @@ if($CONFIG['rarity_flag']){
 }
 
 if($freshHit){
-	$sql = "UPDATE " . $CONFIG['table_name'] . " SET hits = hits + 1 where " . $CONFIG['id_field'] . " = " . $img_id;
+	$sql = "UPDATE " . $CONFIG['table_name'] . " SET hits = hits + 1 where img_id = " . $img_id;
 
 	if(!$result = $mysqli->query($sql)){
-		die('Query error [' . $mysqli->error . ']');
+		die('Query 7 error [' . $mysqli->error . '] ' . $sql);
 	}
 }
 
@@ -206,16 +224,12 @@ if($freshHit){
 	<div id="header"></div>
 	<div id="content">
 
-		<a href="./" class=><img id="img" style="text-align: center;" name="img" src="<?php echo $img_location; ?>" alt="#<?php echo $img_id; ?>"></a>
+		<a href="./" class=><img id="img" style="text-align: center;" name="img" src="<?php echo $img_location ?>" alt="#<?php echo $img_id; ?>"></a>
 
 		<br />
 
 		<label for="img"><a href="<?php echo $CONFIG['site_url'] ?>?id=<?php echo $img_id ?>" class="imgLink"><?php echo $CONFIG['link_text'] ?></a></label>
 	</div>
-
-  <div id="btnWrapper">
-
-  </div>
 
 
 	<div id="footer">
