@@ -18,7 +18,7 @@ if ($mysqli->connect_errno) {
 
 <HTML>
 <HEAD>
-<TITLE><?php $CONFIG['page_title']; ?></TITLE>
+<TITLE><?php echo $CONFIG['page_title']; ?></TITLE>
 
 <style>
 html,
@@ -60,6 +60,28 @@ a:hover {
 
 a:active {
   color: orange;
+}
+
+.btn {
+  background: #68EC33;
+  background-image: -webkit-linear-gradient(top, #68EC33, #37a807);
+  background-image: -moz-linear-gradient(top, #68EC33, #37a807);
+  background-image: -ms-linear-gradient(top, #68EC33, #37a807);
+  background-image: -o-linear-gradient(top, #68EC33, #37a807);
+  background-image: linear-gradient(to bottom, #68EC33, #37a807);
+  -webkit-border-radius: 3;
+  -moz-border-radius: 3;
+  border-radius: 3px;
+  font-family: Arial;
+  color: #000000;
+  font-size: 20px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #56bd2a;
+  text-decoration: none;
 }
 
 #content{
@@ -190,6 +212,10 @@ if($freshHit){
 
 		<label for="img"><a href="<?php echo $CONFIG['site_url'] ?>?id=<?php echo $img_id ?>" class="imgLink"><?php echo $CONFIG['link_text'] ?></a></label>
 	</div>
+
+  <div id="btnWrapper">
+
+  </div>
 
 
 	<div id="footer">
