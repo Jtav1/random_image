@@ -193,7 +193,7 @@ if($freshHit){
 
 
 	<div id="footer">
-		<div id="footerText">This image has been viewed <?php echo $hitCount; ?> times. <?php echo $rarityText; ?></div>
+		<div id="footerText">This is #<?php echo $img_id ?> and has been viewed <?php echo $hitCount; ?> times. <?php echo $rarityText; ?></div>
 		<a href="<?php echo $CONFIG['contact_link'] ?>" class="contactLink">Contact Me</a>
 	</div>
 </div>
