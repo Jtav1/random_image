@@ -1,9 +1,8 @@
 <?php
 /**
  * Pepe Link System
- * Especially shitty code pls disregard
  *
- * @author 		@MaxAbsorbency on twitter hit me up fam
+ * @author 		@MaxAbsorbency on twitter
  *
  */	
 
@@ -12,7 +11,7 @@ require_once('./config.php');
 $mysqli = new mysqli($INFO['sql_host'], $INFO['sql_user'], $INFO['sql_pass'], $INFO['sql_database']);
 
 if ($mysqli->connect_errno) {
-    echo "FUCK DUDE THIS SHIT'S HOSED: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+    echo "Database connection failed with error: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
 }
 
 ?>
@@ -216,14 +215,13 @@ $row = $result->fetch_assoc();
 $hitCount = $row['hits'];
 
 
-if($hitCount == 0) { $rarityText = "QUAD MAX ULTRA PLATINUM RARE PEPE. Hot off the presses."; }
-else if($hitCount > 0 && $hitCount <= 15) { $rarityText = "Quantum rare. I give it a 9/11."; }
-else if($hitCount > 15 && $hitCount <= 30) { $rarityText = "Mega gold rare. 5 stars of David out of 5."; }
-else if($hitCount > 30 && $hitCount < 50) { $rarityText = "That's pretty rare. Nice meme."; }
-else if($hitCount > 50) { $rarityText = "I saw this one on Facebook you fucking normie. "; }
-else $rarityText = "Scientists don't know how rare this pepe is. Contact Me to let me know, tell me you saw this message on Pepe #" . $pepe_id;
+if($hitCount == 0) { $rarityText = $INFO['rarity0']; }
+else if ($hitCount == 420) $rarityText = $INFO['rarity5']; //Special case
+else if($hitCount > 0 && $hitCount <= 15) { $rarityText = $INFO['rarity1']; }
+else if($hitCount > 15 && $hitCount <= 30) { $rarityText = $INFO['rarity2']; }
+else if($hitCount > 30 && $hitCount <= 50) { $rarityText = $INFO['rarity3']; }
+else if($hitCount > 50) { $rarityText = $INFO['rarity4']; }
 
-if ($hitCount == 420) $rarityText = "HOLY SHIT THIS IS A FUCKING DANK MEME <img src='./img/420_pot.gif' alt='DAAAAAAAAAANK'>";
 
 if($freshHit){
 	$sql = "UPDATE pepe_list SET hits = hits + 1 where pepe_id = " . $pepe_id;
