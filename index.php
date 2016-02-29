@@ -97,6 +97,7 @@ a:active {
 	font-weight: bold;
 	text-decoration: none;
 	color: #68EC33;	
+  font-family: "Arial Black";
 }
 
 </style>
@@ -177,7 +178,6 @@ if($freshHit){
 	}
 }
 
-
 ?>
 
 <div id="wrapper">
@@ -194,7 +194,7 @@ if($freshHit){
 
 	<div id="footer">
 		<div id="footerText">This is #<?php echo $img_id ?> and has been viewed <?php echo $hitCount; ?> times. <?php echo $rarityText; ?></div>
-		<a href="<?php echo $CONFIG['contact_link'] ?>" class="contactLink">Contact Me</a>
+		<a href="<?php echo $CONFIG['contact_link'] ?>" class="contactLink">Contact Me</a> || <a href="<?php echo $CONFIG['source_code_url'] ?>" class="contactLink">Source</a>
 	</div>
 </div>
 

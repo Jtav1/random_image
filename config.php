@@ -14,6 +14,7 @@ $CONFIG['img_directory']	= './img/';
 $CONFIG['table_name']		= 'img_tbl';
 $CONFIG['id_field']			= 'img_id';
 $CONFIG['site_url']			= '';
+$CONFIG['source_code_url']	= '';
 
 //Page contents settings
 $CONFIG['page_title'] 		= '';
